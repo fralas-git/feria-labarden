@@ -481,6 +481,12 @@ hr { border: none; border-top: 1px solid var(--borde); margin: 14px 0; }
     </div>
   </div>
 
+  <!-- ACCIONES GLOBALES -->
+  <div style="display:flex; gap:8px; margin-bottom:14px;">
+    <button class="btn btn-azul btn-sm" style="flex:1" onclick="syncTodas()">☁ Sync todas</button>
+    <button class="btn btn-rojo btn-sm" style="flex:0 0 auto; width:auto; padding:11px 14px;" onclick="borrarTodas()">🗑 Borrar todo</button>
+  </div>
+
   <!-- LISTA VENTAS -->
   <div id="ventasList"></div>
 
@@ -801,7 +807,8 @@ function renderVentas() {
       </div>
       <div class="venta-actions">
         <button class="btn btn-sm btn-gris" onclick="editarVenta(${idx})">✏ Editar</button>
-        ${!v.sincronizado ? `<button class="btn btn-sm btn-azul" onclick="reintentarUna(${idx})">☁ Sync</button>` : ''}
+        <button class="btn btn-sm btn-azul" onclick="reintentarUna(${idx})">☁ Sync</button>
+        <button class="btn btn-sm btn-rojo" onclick="borrarVenta(${idx})">🗑</button>
       </div>
     </div>`;
   }).join('');
@@ -810,6 +817,39 @@ function renderVentas() {
 async function reintentarUna(idx) {
   await enviarASheets(ventas[idx]);
   renderVentas();
+  actualizarResumen();
+}
+
+function borrarVenta(idx) {
+  const v = ventas[idx];
+  if (!confirm('¿Borrar la Venta #' + v.id + ' ($' + fmt(v.total) + ')? Esta acción no se puede deshacer.')) return;
+  ventas.splice(idx, 1);
+  localStorage.setItem('feria_ventas', JSON.stringify(ventas));
+  renderVentas();
+  actualizarResumen();
+  toast('Venta eliminada', 'rojo');
+}
+
+function borrarTodas() {
+  if (ventas.length === 0) { toast('No hay ventas para borrar', ''); return; }
+  if (!confirm('¿Borrar TODAS las ventas de esta caja (' + ventas.length + ' ventas)? Esta acción no se puede deshacer.')) return;
+  ventas = [];
+  contadorVentas = 0;
+  localStorage.setItem('feria_ventas', JSON.stringify(ventas));
+  localStorage.setItem('feria_contador', contadorVentas);
+  renderVentas();
+  actualizarResumen();
+  toast('Todas las ventas eliminadas', 'rojo');
+}
+
+async function syncTodas() {
+  const pendientes = ventas.filter(v => !v.sincronizado);
+  if (pendientes.length === 0) { toast('Todo ya está sincronizado ✓', 'verde'); return; }
+  toast('Sincronizando ' + pendientes.length + ' venta(s)...', '');
+  for (const v of pendientes) {
+    await enviarASheets(v);
+  }
+  toast('Sincronización completa ✓', 'verde');
 }
 
 // ═══════════════════════════════════════════════
