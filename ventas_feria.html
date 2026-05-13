@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Caja · Feria Labardén</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;900&display=swap');
+
+:root {
+  --azul: #2a5270;
+  --azul-dark: #1d3d54;
+  --azul-light: #eef4f8;
+  --rojo: #b83228;
+  --verde: #2e7d52;
+  --verde-light: #e8f5ee;
+  --amarillo: #f5a623;
+  --bg: #f0f4f8;
+  --blanco: #ffffff;
+  --texto: #1a2332;
+  --muted: #6b7a8d;
+  --borde: #dde3ea;
+  --mp: #3a52c4;
+  --mp-light: #eef2ff;
+  --sombra: 0 2px 12px rgba(0,0,0,0.08);
+  --sombra-lg: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Figtree', sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+/* HEADER */
+.header {
+  background: var(--azul);
+  padding: 14px 16px 12px;
+  border-bottom: 3px solid var(--rojo);
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-logo { font-size: 20px; }
+.header-title { color: white; font-size: 16px; font-weight: 900; line-height: 1.1; }
+.header-sub { color: rgba(255,255,255,0.6); font-size: 11px; font-weight: 600; }
+.caja-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white; border-radius: 8px;
+  padding: 6px 12px; font-size: 13px; font-weight: 800;
+  cursor: pointer; min-width: 80px; text-align: center;
+  transition: background 0.15s;
+}
+.caja-badge:active { background: rgba(255,255,255,0.25); }
+.caja-badge.sin-caja { color: var(--amarillo); border-color: var(--amarillo); }
+
+/* TABS */
+.tabs {
+  display: flex; background: var(--azul-dark);
+  border-bottom: 2px solid var(--borde);
+}
+.tab {
+  flex: 1; padding: 11px 8px; text-align: center;
+  color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 700;
+  cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all 0.15s; user-select: none;
+}
+.tab.activo { color: white; border-bottom-color: var(--amarillo); }
+
+/* CONTAINER */
+.container { max-width: 480px; margin: 0 auto; padding: 16px; }
+
+/* PANEL */
+.panel { display: none; }
+.panel.activo { display: block; }
+
+/* SETUP CAJA */
+.setup-card {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: var(--sombra-lg);
+  margin-top: 20px;
+}
+.setup-icon { font-size: 48px; margin-bottom: 16px; }
+.setup-title { font-size: 20px; font-weight: 900; color: var(--azul); margin-bottom: 8px; }
+.setup-desc { font-size: 14px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+.setup-input {
+  width: 100%; font-family: 'Figtree', sans-serif;
+  font-size: 28px; font-weight: 900; text-align: center;
+  padding: 16px; border: 2px solid var(--borde);
+  border-radius: 12px; color: var(--azul);
+  outline: none; transition: border-color 0.15s;
+  margin-bottom: 16px; background: var(--azul-light);
+}
+.setup-input:focus { border-color: var(--azul); }
+
+/* BOTONES */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; font-family: 'Figtree', sans-serif;
+  font-size: 15px; font-weight: 800;
+  padding: 14px 20px; border-radius: 12px;
+  border: none; cursor: pointer;
+  transition: all 0.15s; user-select: none;
+  width: 100%; line-height: 1;
+}
+.btn:active { transform: scale(0.97); }
+.btn-azul { background: var(--azul); color: white; }
+.btn-azul:hover { background: var(--azul-dark); }
+.btn-verde { background: var(--verde); color: white; }
+.btn-verde:hover { background: #236040; }
+.btn-rojo { background: var(--rojo); color: white; }
+.btn-gris { background: var(--borde); color: var(--muted); }
+.btn-sm {
+  font-size: 13px; padding: 9px 14px;
+  border-radius: 8px; width: auto;
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+/* TICKET */
+.ticket-card {
+  background: var(--blanco); border-radius: 14px;
+  box-shadow: var(--sombra); overflow: hidden; margin-bottom: 16px;
+}
+.ticket-header {
+  background: var(--azul); color: white;
+  padding: 12px 16px; font-size: 13px; font-weight: 800;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ticket-body { padding: 16px; }
+
+/* FORM REGISTRO */
+.form-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.form-group { flex: 1; }
+.form-group.w-auto { flex: none; }
+label {
+  display: block; font-size: 11px; font-weight: 800;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 5px;
+}
+input[type="number"], input[type="text"] {
+  width: 100%; font-family: 'Figtree', sans-serif;
+  font-size: 20px; font-weight: 800;
+  padding: 12px 14px; border: 2px solid var(--borde);
+  border-radius: 10px; color: var(--texto);
+  outline: none; transition: border-color 0.15s;
+  background: var(--bg);
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+input:focus { border-color: var(--azul); background: white; }
+
+/* ITEMS TICKET */
+.items-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.item-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); border-radius: 8px; padding: 10px 12px;
+  font-size: 14px;
+}
+.item-fam { font-weight: 700; color: var(--azul); }
+.item-monto { font-weight: 900; color: var(--texto); }
+.item-del {
+  background: none; border: none; cursor: pointer;
+  color: var(--rojo); font-size: 18px; padding: 0 4px;
+  line-height: 1; opacity: 0.7;
+}
+.item-del:hover { opacity: 1; }
+
+.ticket-total {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; background: var(--azul-light);
+  border-radius: 10px; margin-bottom: 14px;
+}
+.ticket-total-label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.ticket-total-num { font-size: 22px; font-weight: 900; color: var(--azul); }
+
+.empty-ticket {
+  text-align: center; padding: 24px 16px;
+  color: var(--muted); font-size: 14px;
+}
+.empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.4; }
+
+/* COBRO */
+.cobro-card {
+  background: var(--blanco); border-radius: 14px;
+  box-shadow: var(--sombra-lg); overflow: hidden;
+  margin-bottom: 16px; border: 2px solid var(--azul);
+}
+.cobro-header {
+  background: var(--azul); color: white;
+  padding: 14px 16px; font-size: 15px; font-weight: 900;
+  text-align: center;
+}
+.cobro-total-grande {
+  text-align: center; padding: 20px 16px 12px;
+  font-size: 40px; font-weight: 900; color: var(--azul);
+  line-height: 1;
+}
+.cobro-total-label {
+  text-align: center; font-size: 12px; font-weight: 700;
+  color: var(--muted); margin-bottom: 20px; text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.cobro-body { padding: 0 16px 16px; }
+.cobro-metodos { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.cobro-metodo {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg); border-radius: 10px; padding: 12px;
+}
+.cobro-metodo-icon { font-size: 22px; flex-shrink: 0; }
+.cobro-metodo-label { font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.cobro-metodo input {
+  font-size: 22px; padding: 8px 10px; border-radius: 8px;
+  background: white;
+}
+.vuelto-alert {
+  background: #fff8e1; border: 2px solid var(--amarillo);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;
+  display: flex; gap: 10px; align-items: center;
+  font-size: 14px; font-weight: 800; color: #7a5c00;
+}
+
+/* VENTAS LIST */
+.venta-card {
+  background: var(--blanco); border-radius: 12px;
+  box-shadow: var(--sombra); margin-bottom: 10px; overflow: hidden;
+}
+.venta-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; background: var(--azul-light);
+  border-bottom: 1px solid var(--borde);
+}
+.venta-num { font-size: 12px; font-weight: 800; color: var(--azul); }
+.venta-hora { font-size: 11px; color: var(--muted); }
+.venta-total { font-size: 17px; font-weight: 900; color: var(--azul); }
+.venta-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 5px; }
+.venta-items-preview { font-size: 12px; color: var(--muted); }
+.venta-metodos { display: flex; gap: 8px; margin-top: 4px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 6px; padding: 3px 8px;
+  font-size: 12px; font-weight: 700;
+}
+.chip-ef { background: var(--verde-light); color: var(--verde); }
+.chip-mp { background: var(--mp-light); color: var(--mp); }
+.venta-actions { display: flex; gap: 8px; padding: 0 14px 12px; }
+
+/* RESUMEN */
+.resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.resumen-card {
+  background: var(--blanco); border-radius: 12px;
+  padding: 16px; box-shadow: var(--sombra);
+  text-align: center;
+}
+.resumen-card.full { grid-column: 1 / -1; }
+.resumen-card.azul { background: var(--azul); }
+.resumen-icon { font-size: 24px; margin-bottom: 6px; }
+.resumen-valor { font-size: 24px; font-weight: 900; color: var(--texto); }
+.resumen-card.azul .resumen-valor { color: white; font-size: 28px; }
+.resumen-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.resumen-card.azul .resumen-label { color: rgba(255,255,255,0.6); }
+
+/* ESTADO SYNC */
+.sync-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 10px; margin-bottom: 14px;
+  font-size: 13px; font-weight: 700;
+}
+.sync-bar.ok { background: var(--verde-light); color: var(--verde); }
+.sync-bar.error { background: #fdf0ef; color: var(--rojo); }
+.sync-bar.pendiente { background: #fff8e1; color: #7a5c00; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sync-dot.ok { background: var(--verde); }
+.sync-dot.error { background: var(--rojo); }
+.sync-dot.pendiente { background: var(--amarillo); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 200; display: flex; align-items: flex-end;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.abierto { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--blanco); border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px; width: 100%;
+  transform: translateY(100%); transition: transform 0.25s ease;
+  max-height: 85vh; overflow-y: auto;
+}
+.modal-overlay.abierto .modal { transform: translateY(0); }
+.modal-title { font-size: 18px; font-weight: 900; color: var(--azul); margin-bottom: 6px; }
+.modal-desc { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+.modal-handle { width: 40px; height: 4px; background: var(--borde); border-radius: 2px; margin: 0 auto 20px; }
+
+/* EDIT MODAL */
+.edit-item {
+  display: flex; gap: 10px; align-items: center;
+  background: var(--bg); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.edit-fam { font-size: 14px; font-weight: 700; color: var(--azul); min-width: 80px; }
+.edit-input {
+  font-size: 18px; padding: 8px 10px;
+  border-radius: 8px; flex: 1;
+}
+
+/* NOTIF TOAST */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--texto); color: white;
+  padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 700;
+  z-index: 300; opacity: 0; transition: all 0.25s;
+  white-space: nowrap; max-width: 90vw;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.verde { background: var(--verde); }
+.toast.rojo { background: var(--rojo); }
+
+/* DIVIDER */
+hr { border: none; border-top: 1px solid var(--borde); margin: 14px 0; }
+
+.sin-ventas {
+  text-align: center; padding: 40px 20px;
+  color: var(--muted); font-size: 14px;
+}
+.sin-ventas-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">🏪</div>
+    <div>
+      <div class="header-title">Feria Labardén</div>
+      <div class="header-sub">Sistema de caja</div>
+    </div>
+  </div>
+  <div class="caja-badge sin-caja" id="cajaBadge" onclick="pedirNumeroCaja()">⚙ N° caja</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab activo" onclick="mostrarPanel('venta')">🛒 Venta</div>
+  <div class="tab" onclick="mostrarPanel('caja')">💰 Caja</div>
+</div>
+
+<!-- PANEL VENTA -->
+<div class="panel activo" id="panel-venta">
+<div class="container">
+
+  <!-- FORM AGREGAR ÍTEM -->
+  <div class="ticket-card">
+    <div class="ticket-header">
+      <span>📋 Ticket actual</span>
+      <span id="ticketCount" style="opacity:0.7">0 ítems</span>
+    </div>
+    <div class="ticket-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>N° de familia</label>
+          <input type="number" id="inputFamilia" placeholder="000" min="1" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label>Monto $</label>
+          <input type="number" id="inputMonto" placeholder="000" min="1" inputmode="decimal">
+        </div>
+      </div>
+      <button class="btn btn-azul" onclick="agregarItem()">➕ Registrar ítem</button>
+    </div>
+  </div>
+
+  <!-- LISTA ÍTEMS -->
+  <div class="ticket-card">
+    <div class="ticket-body">
+      <div class="items-list" id="itemsList">
+        <div class="empty-ticket">
+          <div class="empty-icon">🧾</div>
+          <div>Agregá prendas al ticket</div>
+        </div>
+      </div>
+      <div class="ticket-total">
+        <span class="ticket-total-label">Total del ticket</span>
+        <span class="ticket-total-num" id="ticketTotal">$0</span>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-rojo btn-sm" style="flex:0 0 auto; width:auto; padding:12px 16px;" onclick="cancelarTicket()">✕ Cancelar</button>
+        <button class="btn btn-verde" id="btnCerrar" onclick="cerrarVenta()" disabled>✔ Cerrar venta y cobrar</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- PANEL COBRO (superpuesto) -->
+<div class="modal-overlay" id="modalCobro">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💳 Cobrar venta</div>
+    <div class="modal-desc">Completá cómo pagó el cliente. La suma debe ser igual o mayor al total.</div>
+
+    <div class="cobro-total-grande" id="cobroTotalGrande">$0</div>
+    <div class="cobro-total-label">TOTAL A COBRAR</div>
+
+    <div class="cobro-metodos">
+      <div class="cobro-metodo">
+        <div class="cobro-metodo-icon">💵</div>
+        <div style="flex:1">
+          <div class="cobro-metodo-label">Efectivo</div>
+          <input type="number" id="inputEfectivo" placeholder="0" min="0" inputmode="decimal" oninput="calcularVuelto()">
+        </div>
+      </div>
+      <div class="cobro-metodo">
+        <div class="cobro-metodo-icon">📱</div>
+        <div style="flex:1">
+          <div class="cobro-metodo-label">MercadoPago</div>
+          <input type="number" id="inputMP" placeholder="0" min="0" inputmode="decimal" oninput="calcularVuelto()">
+        </div>
+      </div>
+    </div>
+
+    <div class="vuelto-alert" id="vueltoAlert" style="display:none">
+      <span>🪙</span>
+      <span>Vuelto a entregar: <strong id="vueltoMonto">$0</strong></span>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-gris btn-sm" style="width:auto;padding:13px 18px;" onclick="cerrarModalCobro()">Cancelar</button>
+      <button class="btn btn-verde" id="btnGuardar" onclick="guardarVenta()">💾 Guardar venta</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL CAJA -->
+<div class="panel" id="panel-caja">
+<div class="container">
+
+  <!-- SYNC STATUS -->
+  <div class="sync-bar ok" id="syncBar">
+    <div class="sync-dot ok" id="syncDot"></div>
+    <span id="syncMsg">Conectado a Google Sheets ✓</span>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="resumen-grid">
+    <div class="resumen-card full azul">
+      <div class="resumen-icon">💰</div>
+      <div class="resumen-valor" id="resTotal">$0</div>
+      <div class="resumen-label">Total del turno</div>
+    </div>
+    <div class="resumen-card">
+      <div class="resumen-icon">💵</div>
+      <div class="resumen-valor" id="resEfectivo">$0</div>
+      <div class="resumen-label">Efectivo</div>
+    </div>
+    <div class="resumen-card">
+      <div class="resumen-icon">📱</div>
+      <div class="resumen-valor" id="resMP">$0</div>
+      <div class="resumen-label">MercadoPago</div>
+    </div>
+    <div class="resumen-card">
+      <div class="resumen-icon">🛒</div>
+      <div class="resumen-valor" id="resVentas">0</div>
+      <div class="resumen-label">Ventas</div>
+    </div>
+    <div class="resumen-card">
+      <div class="resumen-icon">👕</div>
+      <div class="resumen-valor" id="resPrendas">0</div>
+      <div class="resumen-label">Prendas</div>
+    </div>
+  </div>
+
+  <!-- LISTA VENTAS -->
+  <div id="ventasList"></div>
+
+</div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal-overlay" id="modalEditar">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Editar venta</div>
+    <div class="modal-desc">Modificá los montos de los ítems o los medios de pago.</div>
+    <div id="editItems"></div>
+    <hr>
+    <div style="margin-bottom:12px">
+      <div class="cobro-metodo" style="margin-bottom:8px">
+        <div class="cobro-metodo-icon">💵</div>
+        <div style="flex:1">
+          <div class="cobro-metodo-label">Efectivo</div>
+          <input type="number" id="editEfectivo" placeholder="0" min="0" inputmode="decimal" class="edit-input" style="width:100%">
+        </div>
+      </div>
+      <div class="cobro-metodo">
+        <div class="cobro-metodo-icon">📱</div>
+        <div style="flex:1">
+          <div class="cobro-metodo-label">MercadoPago</div>
+          <input type="number" id="editMP" placeholder="0" min="0" inputmode="decimal" class="edit-input" style="width:100%">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-gris btn-sm" style="width:auto;padding:13px 18px;" onclick="cerrarModalEditar()">Cancelar</button>
+      <button class="btn btn-azul" onclick="guardarEdicion()">✔ Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SETUP CAJA -->
+<div class="modal-overlay" id="modalCaja">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔢 Número de caja</div>
+    <div class="modal-desc">Ingresá el número de caja que te asignaron. Esto identifica todas tus ventas en el sistema.</div>
+    <input type="number" class="setup-input" id="inputNumeroCaja" placeholder="1" min="1" max="99" inputmode="numeric">
+    <button class="btn btn-azul" onclick="guardarNumeroCaja()">✔ Confirmar</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz_C_nrvMN858qczQKXsVNl_FNUzrrX1zsWGz6zNljwA4rVcCa2PetsGJThXWUDyX_W7Q/exec';
+
+// ═══════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════
+let numeroCaja = parseInt(localStorage.getItem('feria_caja')) || null;
+let ticketActual = []; // [{familia, monto}]
+let ventas = JSON.parse(localStorage.getItem('feria_ventas') || '[]');
+let contadorVentas = parseInt(localStorage.getItem('feria_contador') || '0');
+let ventaEditandoIdx = null;
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function init() {
+  actualizarBadge();
+  renderTicket();
+  renderVentas();
+  actualizarResumen();
+  if (!numeroCaja) {
+    setTimeout(() => abrirModal('modalCaja'), 400);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// NAVEGACIÓN
+// ═══════════════════════════════════════════════
+function mostrarPanel(panel) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+  document.getElementById('panel-' + panel).classList.add('activo');
+  const idx = panel === 'venta' ? 0 : 1;
+  document.querySelectorAll('.tab')[idx].classList.add('activo');
+  if (panel === 'caja') { renderVentas(); actualizarResumen(); }
+}
+
+// ═══════════════════════════════════════════════
+// NÚMERO DE CAJA
+// ═══════════════════════════════════════════════
+function pedirNumeroCaja() { abrirModal('modalCaja'); }
+
+function guardarNumeroCaja() {
+  const v = parseInt(document.getElementById('inputNumeroCaja').value);
+  if (!v || v < 1) { toast('Ingresá un número válido', 'rojo'); return; }
+  numeroCaja = v;
+  localStorage.setItem('feria_caja', v);
+  actualizarBadge();
+  cerrarModal('modalCaja');
+  toast('Caja ' + v + ' configurada ✓', 'verde');
+}
+
+function actualizarBadge() {
+  const b = document.getElementById('cajaBadge');
+  if (numeroCaja) {
+    b.textContent = 'Caja ' + numeroCaja;
+    b.classList.remove('sin-caja');
+  } else {
+    b.textContent = '⚙ N° caja';
+    b.classList.add('sin-caja');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TICKET
+// ═══════════════════════════════════════════════
+function agregarItem() {
+  if (!numeroCaja) { pedirNumeroCaja(); return; }
+  const fam = document.getElementById('inputFamilia').value.trim();
+  const monto = parseFloat(document.getElementById('inputMonto').value);
+  if (!fam) { toast('Ingresá el número de familia', 'rojo'); document.getElementById('inputFamilia').focus(); return; }
+  if (!monto || monto <= 0) { toast('Ingresá un monto válido', 'rojo'); document.getElementById('inputMonto').focus(); return; }
+  ticketActual.push({ familia: fam, monto });
+  document.getElementById('inputFamilia').value = '';
+  document.getElementById('inputMonto').value = '';
+  document.getElementById('inputFamilia').focus();
+  renderTicket();
+}
+
+function eliminarItem(idx) {
+  ticketActual.splice(idx, 1);
+  renderTicket();
+}
+
+function cancelarTicket() {
+  if (ticketActual.length === 0) return;
+  if (!confirm('¿Cancelar el ticket? Se perderán los ítems actuales.')) return;
+  ticketActual = [];
+  renderTicket();
+}
+
+function renderTicket() {
+  const lista = document.getElementById('itemsList');
+  const total = ticketActual.reduce((s, i) => s + i.monto, 0);
+  document.getElementById('ticketTotal').textContent = '$' + fmt(total);
+  document.getElementById('ticketCount').textContent = ticketActual.length + ' ítem' + (ticketActual.length !== 1 ? 's' : '');
+  document.getElementById('btnCerrar').disabled = ticketActual.length === 0;
+
+  if (ticketActual.length === 0) {
+    lista.innerHTML = '<div class="empty-ticket"><div class="empty-icon">🧾</div><div>Agregá prendas al ticket</div></div>';
+    return;
+  }
+  lista.innerHTML = ticketActual.map((it, i) =>
+    `<div class="item-row">
+      <span class="item-fam">Familia ${it.familia}</span>
+      <span class="item-monto">$${fmt(it.monto)}</span>
+      <button class="item-del" onclick="eliminarItem(${i})">✕</button>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════
+// COBRO
+// ═══════════════════════════════════════════════
+function cerrarVenta() {
+  const total = ticketActual.reduce((s, i) => s + i.monto, 0);
+  document.getElementById('cobroTotalGrande').textContent = '$' + fmt(total);
+  document.getElementById('inputEfectivo').value = '';
+  document.getElementById('inputMP').value = '';
+  document.getElementById('vueltoAlert').style.display = 'none';
+  abrirModal('modalCobro');
+  setTimeout(() => document.getElementById('inputEfectivo').focus(), 300);
+}
+
+function calcularVuelto() {
+  const total = ticketActual.reduce((s, i) => s + i.monto, 0);
+  const ef = parseFloat(document.getElementById('inputEfectivo').value) || 0;
+  const mp = parseFloat(document.getElementById('inputMP').value) || 0;
+  const pagado = ef + mp;
+  const vuelto = pagado - total;
+  const alerta = document.getElementById('vueltoAlert');
+  if (vuelto > 0) {
+    alerta.style.display = 'flex';
+    document.getElementById('vueltoMonto').textContent = '$' + fmt(vuelto);
+  } else {
+    alerta.style.display = 'none';
+  }
+}
+
+function cerrarModalCobro() { cerrarModal('modalCobro'); }
+
+async function guardarVenta() {
+  const total = ticketActual.reduce((s, i) => s + i.monto, 0);
+  const ef = parseFloat(document.getElementById('inputEfectivo').value) || 0;
+  const mp = parseFloat(document.getElementById('inputMP').value) || 0;
+  const pagado = ef + mp;
+
+  if (pagado < total) {
+    toast('El pago es menor al total ($' + fmt(total) + ')', 'rojo'); return;
+  }
+
+  const ahora = new Date();
+  contadorVentas++;
+  const venta = {
+    id: contadorVentas,
+    caja: numeroCaja,
+    fecha: ahora.toLocaleDateString('es-AR'),
+    hora: ahora.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+    items: [...ticketActual],
+    total,
+    efectivo: ef,
+    mp,
+    sincronizado: false
+  };
+
+  ventas.push(venta);
+  ticketActual = [];
+  localStorage.setItem('feria_ventas', JSON.stringify(ventas));
+  localStorage.setItem('feria_contador', contadorVentas);
+
+  cerrarModal('modalCobro');
+  renderTicket();
+  toast('Venta #' + contadorVentas + ' guardada ✓', 'verde');
+
+  // Enviar a Sheets en background
+  enviarASheets(venta);
+}
+
+// ═══════════════════════════════════════════════
+// SYNC CON GOOGLE SHEETS
+// ═══════════════════════════════════════════════
+async function enviarASheets(venta) {
+  setSyncEstado('pendiente', 'Sincronizando...');
+  const filas = venta.items.map(it => ({
+    caja: venta.caja,
+    fecha: venta.fecha,
+    hora: venta.hora,
+    ventaNum: venta.id,
+    familia: it.familia,
+    monto: it.monto,
+    ef: redondearPorItem(venta.efectivo, venta.total, it.monto),
+    mp: redondearPorItem(venta.mp, venta.total, it.monto)
+  }));
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ filas }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.ok) {
+      venta.sincronizado = true;
+      localStorage.setItem('feria_ventas', JSON.stringify(ventas));
+      setSyncEstado('ok', 'Conectado a Google Sheets ✓');
+      renderVentas();
+    } else {
+      throw new Error(data.error || 'Error desconocido');
+    }
+  } catch (err) {
+    setSyncEstado('error', 'Sin conexión — datos guardados localmente');
+    console.error('Sync error:', err);
+  }
+}
+
+function redondearPorItem(montoMetodo, totalVenta, montoItem) {
+  if (totalVenta === 0) return 0;
+  return Math.round((montoMetodo / totalVenta) * montoItem * 100) / 100;
+}
+
+async function reintentarSync() {
+  const pendientes = ventas.filter(v => !v.sincronizado);
+  if (pendientes.length === 0) { toast('Todo está sincronizado ✓', 'verde'); return; }
+  toast('Reintentando ' + pendientes.length + ' venta(s)...', '');
+  for (const v of pendientes) { await enviarASheets(v); }
+}
+
+function setSyncEstado(estado, msg) {
+  const bar = document.getElementById('syncBar');
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncMsg');
+  bar.className = 'sync-bar ' + estado;
+  dot.className = 'sync-dot ' + estado;
+  txt.textContent = msg;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER VENTAS
+// ═══════════════════════════════════════════════
+function renderVentas() {
+  const lista = document.getElementById('ventasList');
+  if (ventas.length === 0) {
+    lista.innerHTML = '<div class="sin-ventas"><div class="sin-ventas-icon">🛒</div><div>Aún no hay ventas en este turno</div></div>';
+    return;
+  }
+  lista.innerHTML = [...ventas].reverse().map((v, ri) => {
+    const idx = ventas.length - 1 - ri;
+    const syncIcon = v.sincronizado ? '☁️' : '⏳';
+    const famResumen = [...new Set(v.items.map(i => 'Fam. ' + i.familia))].join(', ');
+    return `<div class="venta-card">
+      <div class="venta-header">
+        <div>
+          <div class="venta-num">${syncIcon} Venta #${v.id} · Caja ${v.caja}</div>
+          <div class="venta-hora">${v.fecha} ${v.hora} · ${v.items.length} prenda(s)</div>
+        </div>
+        <div class="venta-total">$${fmt(v.total)}</div>
+      </div>
+      <div class="venta-body">
+        <div class="venta-items-preview">${famResumen}</div>
+        <div class="venta-metodos">
+          ${v.efectivo > 0 ? `<span class="chip chip-ef">💵 $${fmt(v.efectivo)}</span>` : ''}
+          ${v.mp > 0 ? `<span class="chip chip-mp">📱 $${fmt(v.mp)}</span>` : ''}
+        </div>
+      </div>
+      <div class="venta-actions">
+        <button class="btn btn-sm btn-gris" onclick="editarVenta(${idx})">✏ Editar</button>
+        ${!v.sincronizado ? `<button class="btn btn-sm btn-azul" onclick="reintentarUna(${idx})">☁ Sync</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function reintentarUna(idx) {
+  await enviarASheets(ventas[idx]);
+  renderVentas();
+}
+
+// ═══════════════════════════════════════════════
+// EDITAR VENTA
+// ═══════════════════════════════════════════════
+function editarVenta(idx) {
+  ventaEditandoIdx = idx;
+  const v = ventas[idx];
+  const cont = document.getElementById('editItems');
+  cont.innerHTML = v.items.map((it, i) =>
+    `<div class="edit-item">
+      <div class="edit-fam">Fam. ${it.familia}</div>
+      <input type="number" class="edit-input" id="editItem_${i}" value="${it.monto}" min="1" inputmode="decimal">
+    </div>`
+  ).join('');
+  document.getElementById('editEfectivo').value = v.efectivo;
+  document.getElementById('editMP').value = v.mp;
+  abrirModal('modalEditar');
+}
+
+async function guardarEdicion() {
+  const v = ventas[ventaEditandoIdx];
+  v.items = v.items.map((it, i) => ({
+    familia: it.familia,
+    monto: parseFloat(document.getElementById('editItem_' + i).value) || it.monto
+  }));
+  v.total = v.items.reduce((s, i) => s + i.monto, 0);
+  v.efectivo = parseFloat(document.getElementById('editEfectivo').value) || 0;
+  v.mp = parseFloat(document.getElementById('editMP').value) || 0;
+  v.sincronizado = false; // Marcar como pendiente de re-sync
+  localStorage.setItem('feria_ventas', JSON.stringify(ventas));
+  cerrarModal('modalEditar');
+  renderVentas();
+  actualizarResumen();
+  toast('Venta actualizada — re-sincronizando...', '');
+  await enviarASheets(v);
+}
+
+// ═══════════════════════════════════════════════
+// RESUMEN
+// ═══════════════════════════════════════════════
+function actualizarResumen() {
+  const total = ventas.reduce((s, v) => s + v.total, 0);
+  const ef = ventas.reduce((s, v) => s + v.efectivo, 0);
+  const mp = ventas.reduce((s, v) => s + v.mp, 0);
+  const prendas = ventas.reduce((s, v) => s + v.items.length, 0);
+  document.getElementById('resTotal').textContent = '$' + fmt(total);
+  document.getElementById('resEfectivo').textContent = '$' + fmt(ef);
+  document.getElementById('resMP').textContent = '$' + fmt(mp);
+  document.getElementById('resVentas').textContent = ventas.length;
+  document.getElementById('resPrendas').textContent = prendas;
+}
+
+// ═══════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════
+function fmt(n) {
+  return Number(n).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function abrirModal(id) {
+  document.getElementById(id).classList.add('abierto');
+  document.body.style.overflow = 'hidden';
+}
+
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('abierto');
+  document.body.style.overflow = '';
+}
+
+function cerrarModalEditar() { cerrarModal('modalEditar'); }
+
+let toastTimer;
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (tipo || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// Cerrar modales tocando afuera
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) {
+      // No cerrar el modal de caja si no hay número
+      if (overlay.id === 'modalCaja' && !numeroCaja) return;
+      overlay.classList.remove('abierto');
+      document.body.style.overflow = '';
+    }
+  });
+});
+
+// Enter en inputs
+document.getElementById('inputMonto').addEventListener('keydown', e => {
+  if (e.key === 'Enter') agregarItem();
+});
+document.getElementById('inputFamilia').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('inputMonto').focus();
+});
+
+// Intentar re-sync al volver a tener conexión
+window.addEventListener('online', () => {
+  const pendientes = ventas.filter(v => !v.sincronizado);
+  if (pendientes.length > 0) reintentarSync();
+});
+
+// ═══════════════════════════════════════════════
+// ARRANCAR
+// ═══════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
